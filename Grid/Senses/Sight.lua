@@ -1,6 +1,6 @@
 Sight = Class{}
 
-function Sight:init(grid, agent)
+function Sight:init(grid, agent, sightDist)
 
     -- self.drawTable = {
     --     ['x'] = 400,
@@ -11,7 +11,7 @@ function Sight:init(grid, agent)
     self.visionPlot = {}
     self.visionGrid = {}
     self.sightUImap = {}
-    self.sightDistance = (GRID_WIDTH + GRID_HEIGHT)*TILE_SIZE
+    self.sightDistance = sightDist or (GRID_WIDTH + GRID_HEIGHT)*TILE_SIZE
 
     -- self x, y
     self.agentX = agent.x

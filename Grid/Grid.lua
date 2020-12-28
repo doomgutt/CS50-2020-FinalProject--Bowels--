@@ -29,14 +29,31 @@ function Grid:init ()
     -- init agents
     self.agents = {
         ['Toe_1'] = Agent('Toe', self.grid),
-        ['Nostril'] = Agent('Nostril', self.grid),
-        ['Ear'] = Agent('Ear', self.grid)
+        ['Toe_2'] = nil,
+        ['Ear'] = Agent('Ear', self.grid),
+        ['Nostril'] = Agent('Nostril', self.grid)
     }
 
     -- init senses
-    self.senses['Toe_1'] = Sight(self.grid, self.agents['Toe_1'])
-    self.senses['Nostril'] = Smell(self.grid, self.agents['Nostril'])
-    self.senses['Ear'] = Sound(self.grid, self.agents['Ear'])
+    self.senses['Toe_1'] = {
+        ['sight'] = Sight(self.grid, self.agents['Toe_1']),
+        ['sound'] = Sound(self.grid, self.agents['Toe_1']),
+        ['smell'] = Smell(self.grid, self.agents['Toe_1'])
+    }
+
+    self.senses['Ear'] = {
+        ['sight'] = Sight(self.grid, self.agents['Ear'], 12),
+        ['sound'] = Sound(self.grid, self.agents['Ear']),
+        ['smell'] = Smell(self.grid, self.agents['Ear'])
+    }
+
+    self.senses['Nostril'] = {
+        ['sight'] = Sight(self.grid, self.agents['Nostril'], 12),
+        ['sound'] = Sound(self.grid, self.agents['Nostril']),
+        ['smell'] = Smell(self.grid, self.agents['Nostril'])
+    }
+
+
 
     -- self:getTile(0, 0)
 end
@@ -71,7 +88,9 @@ function Grid:update(dt)
     -- udpate senses
     for name, sense in pairs(self.senses) do
         if self.agents[name].status['alive'] then
-            sense:update(self.grid, self.agents[name])
+            sense['sight']:update(self.grid, self.agents[name])
+            sense['sound']:update(self.grid, self.agents[name])
+            sense['smell']:update(self.grid, self.agents[name])
         end
     end
 
@@ -121,13 +140,55 @@ function Grid:render()
         end
     end
 
-    -- render sense UI
-    self:senseUI(3, 23, self.senses['Toe_1'], self.agents['Toe_1'])
-    self:senseUI(33, 23, self.senses['Nostril'], self.agents['Nostril'])
+    -- sense titles
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(200/255, 200/255, 200/255)
+    love.graphics.print("Ear", 3 * TILE_SIZE, 22 * TILE_SIZE)
+    love.graphics.print("Nostril", 13 * TILE_SIZE, 22 * TILE_SIZE)
+    love.graphics.print("Toe 2", 23 * TILE_SIZE, 22 * TILE_SIZE)
+    love.graphics.print("Toe 1", 33 * TILE_SIZE, 22 * TILE_SIZE)
+
+    -- printing Sense UI
+    local y = 2
+    local x = 0
+    for name, check in pairs(self.agents) do
+        y = 2
+
+        for senseName, _ in pairs(self.senses[name]) do
+            self:senseUI(3 + 10*x, 24 + y*9,
+                self.senses[name][senseName], self.agents[name])
+            y = y - 1
+        end
+
+        if x == 1 then
+            x = x + 2
+        else
+            x = x + 1
+        end
+        -- for y = 0, 2 do
+        --     for x = 0, 3 do
+        --         self:senseUI(3 + 10*x, 24 + y*9)
+                -- self:senseUI(3, 24, self.senses['Toe_1']['sight'], )
+        --     end
+        -- end
+    end
+
+
+    -- -- -- render sense UI
+    -- self:senseUI(3, 24, self.senses['Toe_1']['sight'], self.agents['Toe_1'])
+    -- self:senseUI(23, 24, self.senses['Ear']['sight'], self.agents['Ear'])
+    -- self:senseUI(33, 24, self.senses['Nostril']['sight'], self.agents['Nostril'])
+    --
+    -- for y = 0, 2 do
+    --     for x = 0, 3 do
+    --         self:senseUI(3 + 10*x, 24 + y*9)
+    --     end
+    -- end
+
 
     -- render sight rays
-    self.senses['Toe_1']:render(SIGHT_RAYS)
-    self.senses['Ear']:render(SOUND_RAYS)
+    self.senses['Toe_1']['sight']:render(SIGHT_RAYS)
+    self.senses['Ear']['sound']:render(SOUND_RAYS)
     -- love.graphics.line((1)*TILE_SIZE, (1+3)*TILE_SIZE, 20*TILE_SIZE, (20+3)*TILE_SIZE)
 
     -- self:renderSight()
@@ -158,16 +219,6 @@ end
 
 -- Senses UI
 function Grid:senseUI(posX, posY, agentSenses, agent)
-    -- check for dead agent
-    local UIout
-    local UIself
-    if agent.status['alive'] then
-        UIself = agent.tile['RGB']
-        UIout = agentSenses.UIoutput
-    else
-        UIself = VOID_TILE['RGB']
-        UIout = DEAD_UI_OUTPUT
-    end
 
     -- sense bg
     for y = posY-1, posY + 6 do
@@ -177,34 +228,50 @@ function Grid:senseUI(posX, posY, agentSenses, agent)
         end
     end
 
-    -- agent tile
-    self:senseUItile(posX + 1*2, posY + 1*2, UIself)
+    if agent ~= nil and agentSenses ~= nil then
 
-    -- manually drawing senses
-    self:senseUItile(posX + 0*2, posY + 0*2, UIout[1])
-    self:senseUItile(posX + 1*2, posY + 0*2, UIout[2])
-    self:senseUItile(posX + 2*2, posY + 0*2, UIout[3])
-    self:senseUItile(posX + 0*2, posY + 1*2, UIout[8])
-    self:senseUItile(posX + 2*2, posY + 1*2, UIout[4])
-    self:senseUItile(posX + 0*2, posY + 2*2, UIout[7])
-    self:senseUItile(posX + 1*2, posY + 2*2, UIout[6])
-    self:senseUItile(posX + 2*2, posY + 2*2, UIout[5])
-
-    -- 1 2 3
-    -- 8   4
-    -- 7 6 5
+        -- check for dead agent
+        local UIout
+        local UIself
+        if agent.status['alive'] then
+            UIself = agent.tile['RGB']
+            UIout = agentSenses.UIoutput
+        else
+            UIself = VOID_TILE['RGB']
+            UIout = DEAD_UI_OUTPUT
+        end
 
 
-    -- for y = 0, 2 do
-    --     for x = 0, 2 do
-    --         if y == 0 then
-    --             self:senseUItile(posX + x*2, posY + y*2, agentSenses.sightUImap[x+1])
-    --         elseif y == 1 and x == 1 then
-    --             self:senseUItile(posX + y*2, posY + y*2, agent.tile['RGB'])
-    --         end
-    --
-    --     end
-    -- end
+        -- agent tile
+        self:senseUItile(posX + 1*2, posY + 1*2, UIself)
+
+        -- manually drawing senses
+        self:senseUItile(posX + 0*2, posY + 0*2, UIout[1])
+        self:senseUItile(posX + 1*2, posY + 0*2, UIout[2])
+        self:senseUItile(posX + 2*2, posY + 0*2, UIout[3])
+        self:senseUItile(posX + 0*2, posY + 1*2, UIout[8])
+        self:senseUItile(posX + 2*2, posY + 1*2, UIout[4])
+        self:senseUItile(posX + 0*2, posY + 2*2, UIout[7])
+        self:senseUItile(posX + 1*2, posY + 2*2, UIout[6])
+        self:senseUItile(posX + 2*2, posY + 2*2, UIout[5])
+
+
+        -- 1 2 3
+        -- 8   4
+        -- 7 6 5
+
+
+        -- for y = 0, 2 do
+        --     for x = 0, 2 do
+        --         if y == 0 then
+        --             self:senseUItile(posX + x*2, posY + y*2, agentSenses.sightUImap[x+1])
+        --         elseif y == 1 and x == 1 then
+        --             self:senseUItile(posX + y*2, posY + y*2, agent.tile['RGB'])
+        --         end
+        --
+        --     end
+        -- end
+    end
 end
 
 

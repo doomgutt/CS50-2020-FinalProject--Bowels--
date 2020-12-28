@@ -1,19 +1,19 @@
 -- %% SCREEN SETTINGS %%
 --------------------------------------------------------------------------------
 WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 720
+WINDOW_HEIGHT = 920
 
 -- keep these to 40 = VIRTUAL_XXXXX / TILE_SIZE
 -- for smoothest performance
-VIRTUAL_WIDTH = 420
+VIRTUAL_WIDTH = 400
 VIRTUAL_HEIGHT = 400
-TILE_SIZE = 10
+TILE_SIZE = 8
 
 
 -- %% GRID SETTINGS %%
 --------------------------------------------------------------------------------
-GRID_WIDTH = math.floor((VIRTUAL_WIDTH-20) / TILE_SIZE)
-GRID_HEIGHT = math.floor((VIRTUAL_HEIGHT / TILE_SIZE) / 2)
+GRID_WIDTH = 40--math.floor((VIRTUAL_WIDTH-20) / TILE_SIZE)
+GRID_HEIGHT = 20--math.floor((VIRTUAL_HEIGHT / TILE_SIZE) / 2)
 
 
 
