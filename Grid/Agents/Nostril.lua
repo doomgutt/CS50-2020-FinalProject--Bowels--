@@ -3,41 +3,32 @@ Nostril = Class{}
 
 function Nostril:init(params)
 
-    self.x = 2
-    self.y = 2
+    self.x = 20
+    self.y = 10
 
-    self.moveSpeed = 0.05 -- 0.08
-    self.id = 20
+    self.moveSpeed = 0.15 -- 0.08
+    self.id = 30
+
 
     self.controls = {
-        ['up'] = 'w',
-        ['down'] = 's',
-        ['left'] = 'a',
-        ['right'] = 'd'
+        ['up'] = 'i',
+        ['down'] = 'k',
+        ['left'] = 'j',
+        ['right'] = 'l'
+        -- ['senseDown'] = '[',
+        -- ['senseUp'] = ']'
     }
 
 
-    -- self.standingRGB = {
-    --     ['r'] = 0/255,
-    --     ['g'] = 200/255,
-    --     ['b'] = 0/255
-    -- }
-    --
-    -- self.movingRGB = {
-    --     ['r'] = 0/255,
-    --     ['g'] = 255/255,
-    --     ['b'] = 0/255
-    -- }
-
     self.standingRGB = {
-        ['r'] = 100/255,
-        ['g'] = 20/255,
-        ['b'] = 5/255
+        ['r'] = 42/255,
+        ['g'] = 141/255,
+        ['b'] = 75/255
     }
 
     self.movingRGB = {
-        ['r'] = 255/255,
-        ['g'] = 60/255,
-        ['b'] = 10/255
+        ['r'] = 140/255,
+        ['g'] = 201/255,
+        ['b'] = 0/255
     }
 end

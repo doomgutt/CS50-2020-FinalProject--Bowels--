@@ -12,9 +12,9 @@ function Toe:init()
         ['up'] = 'up',
         ['down'] = 'down',
         ['left'] = 'left',
-        ['right'] = 'right',
-        ['senseDown'] = '[',
-        ['senseUp'] = ']'
+        ['right'] = 'right'
+        -- ['senseDown'] = '[',
+        -- ['senseUp'] = ']'
     }
 
     self.standingRGB = {

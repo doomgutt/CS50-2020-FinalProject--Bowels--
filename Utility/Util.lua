@@ -143,6 +143,7 @@ end
 
 -- Debugging Controls
 SIGHT_RAYS = 'n'
+SOUND_RAYS = 'y'
 EXCLUDE_AGENT_ID_1 = nil -- 10
 EXCLUDE_AGENT_ID_2 = nil -- 20
 EXCLUDE_AGENT_ID_3 = nil

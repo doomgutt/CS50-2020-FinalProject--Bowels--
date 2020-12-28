@@ -2,6 +2,7 @@ Grid = Class{}
 
 require 'Grid/Senses/Sight'
 require 'Grid/Senses/Smell'
+require 'Grid/Senses/Sound'
 
 require 'Grid/Agents/Agent'
 
@@ -28,12 +29,14 @@ function Grid:init ()
     -- init agents
     self.agents = {
         ['Toe_1'] = Agent('Toe', self.grid),
-        ['Nostril'] = Agent('Nostril', self.grid)
+        ['Nostril'] = Agent('Nostril', self.grid),
+        ['Ear'] = Agent('Ear', self.grid)
     }
 
     -- init senses
     self.senses['Toe_1'] = Sight(self.grid, self.agents['Toe_1'])
     self.senses['Nostril'] = Smell(self.grid, self.agents['Nostril'])
+    self.senses['Ear'] = Sound(self.grid, self.agents['Ear'])
 
     -- self:getTile(0, 0)
 end
@@ -72,8 +75,10 @@ function Grid:update(dt)
         end
     end
 
-    if self.agents['Nostril'].x == self.agents['Toe_1'].x and
-        self.agents['Nostril'].y == self.agents['Toe_1'].y then
+    if (self.agents['Nostril'].x == self.agents['Toe_1'].x and
+        self.agents['Nostril'].y == self.agents['Toe_1'].y) or
+        (self.agents['Ear'].x == self.agents['Toe_1'].x and
+        self.agents['Ear'].y == self.agents['Toe_1'].y) then
         self.agents['Toe_1'].status['alive'] = false
     end
 
@@ -122,6 +127,7 @@ function Grid:render()
 
     -- render sight rays
     self.senses['Toe_1']:render(SIGHT_RAYS)
+    self.senses['Ear']:render(SOUND_RAYS)
     -- love.graphics.line((1)*TILE_SIZE, (1+3)*TILE_SIZE, 20*TILE_SIZE, (20+3)*TILE_SIZE)
 
     -- self:renderSight()
