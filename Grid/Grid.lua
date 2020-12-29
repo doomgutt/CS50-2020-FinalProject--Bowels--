@@ -8,6 +8,12 @@ require 'Grid/Agents/Agent'
 
 require 'Grid/Maps'
 
+-- %% AGENT SETTINGS %%
+--------------------------------------------------------------------------------
+-- can't live in Util because agents reference it
+
+-----------------------------------------------------------------
+
 function Grid:init ()
 
     self.senses = {}
@@ -29,7 +35,7 @@ function Grid:init ()
     -- init agents
     self.agents = {
         ['Toe_1'] = Agent('Toe', self.grid),
-        ['Toe_2'] = nil,
+        -- ['Toe_2'] = nil,
         ['Ear'] = Agent('Ear', self.grid),
         ['Nostril'] = Agent('Nostril', self.grid)
     }
@@ -89,8 +95,8 @@ function Grid:update(dt)
     for name, sense in pairs(self.senses) do
         if self.agents[name].status['alive'] then
             sense['sight']:update(self.grid, self.agents[name])
-            sense['sound']:update(self.grid, self.agents[name])
-            sense['smell']:update(self.grid, self.agents[name])
+            sense['sound']:update(dt, self.grid, self.agents[name])
+            sense['smell']:update(dt, self.grid, self.agents[name])
         end
     end
 
@@ -171,6 +177,8 @@ function Grid:render()
                 -- self:senseUI(3, 24, self.senses['Toe_1']['sight'], )
         --     end
         -- end
+
+
     end
 
 
@@ -189,9 +197,10 @@ function Grid:render()
     -- render sight rays
     self.senses['Toe_1']['sight']:render(SIGHT_RAYS)
     self.senses['Ear']['sound']:render(SOUND_RAYS)
+    self.senses['Nostril']['smell']:render()
+
     -- love.graphics.line((1)*TILE_SIZE, (1+3)*TILE_SIZE, 20*TILE_SIZE, (20+3)*TILE_SIZE)
 
-    -- self:renderSight()
 end
 
 

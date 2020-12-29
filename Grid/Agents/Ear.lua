@@ -1,5 +1,6 @@
 Ear = Class{}
 
+-- require 'Utility/Util'
 
 function Ear:init()
 
@@ -7,7 +8,7 @@ function Ear:init()
     self.y = 2
 
     self.moveSpeed = 0.07
-    self.id = 20
+    self.id = EAR_ID
 
     self.controls = {
         ['up'] = 'w',
@@ -23,6 +24,12 @@ function Ear:init()
     }
 
     self.movingRGB = {
+        ['r'] = 255/255,
+        ['g'] = 60/255,
+        ['b'] = 10/255
+    }
+
+    self.smell = {
         ['r'] = 255/255,
         ['g'] = 60/255,
         ['b'] = 10/255

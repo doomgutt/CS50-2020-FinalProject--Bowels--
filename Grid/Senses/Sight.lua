@@ -94,14 +94,14 @@ function Sight:radialVision(grid, agent, step, partitions)
     -- clear vision
     self.visionPlot = {}
     self.visionGrid = {
-        [1] = {}, -- 1 - down
-        [2] = {}, -- 2 - dr
-        [3] = {}, -- 3 - r
-        [4] = {}, -- 4 - ur
-        [5] = {}, -- 5 - u
-        [6] = {}, -- 6 - ul
-        [7] = {}, -- 7 - l
-        [8] = {}}  -- 8 - dl
+        [1] = {}, -- 1 - ul
+        [2] = {}, -- 2 - u
+        [3] = {}, -- 3 - ur
+        [4] = {}, -- 4 - r
+        [5] = {}, -- 5 - dr
+        [6] = {}, -- 6 - d
+        [7] = {}, -- 7 - dl
+        [8] = {}}  -- 8 - l
 
     -- init vars
     local partitions = partitions or 180
@@ -222,7 +222,10 @@ function Sight:makeUImap(agent)
                 -- closer to 1 makes floor more vivid
                 -- smaller than 1 makes walls more vivid
                 dMod = 0.1
-            elseif sightTile['tile']['id'] == 20 then
+            elseif sightTile['tile']['id'] == EAR_ID then
+                -- makes the enemy more visible
+                dMod = 40*((focusMod^1.2)*4)
+            elseif sightTile['tile']['id'] == NOSTRIL_ID then
                 -- makes the enemy more visible
                 dMod = 40*((focusMod^1.2)*4)
             elseif sightTile['tile']['id'] == WALL_TILE['id'] then

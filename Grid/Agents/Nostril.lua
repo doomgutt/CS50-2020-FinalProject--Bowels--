@@ -1,5 +1,6 @@
 Nostril = Class{}
 
+-- require 'Utility/Util'
 
 function Nostril:init(params)
 
@@ -7,7 +8,7 @@ function Nostril:init(params)
     self.y = 10
 
     self.moveSpeed = 0.15 -- 0.08
-    self.id = 30
+    self.id = NOSTRIL_ID
 
 
     self.controls = {
@@ -27,6 +28,12 @@ function Nostril:init(params)
     }
 
     self.movingRGB = {
+        ['r'] = 140/255,
+        ['g'] = 201/255,
+        ['b'] = 0/255
+    }
+
+    self.smell = {
         ['r'] = 140/255,
         ['g'] = 201/255,
         ['b'] = 0/255

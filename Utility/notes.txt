@@ -1,3 +1,13 @@
+WERID BUGS:
+
+- putting 'diable agent' values as 'nil' removes ALL agents from the field...??
+- 'sense smell' function somehow affects RGB of EVERYTHING??
+
+
+
+
+
+
 draw rectangles equal to dimensions of the grid
 let's say 200 by 100
 

@@ -8,8 +8,13 @@ require 'Grid/Agents/Ear'
 -- agent init
 function Agent:init(type, grid)
 
-    self.x = AGENT_TYPES[type].x
-    self.y = AGENT_TYPES[type].y
+    self.agentTypes = {
+        ['Toe'] = Toe(),
+        ['Nostril'] = Nostril(),
+        ['Ear'] = Ear()}
+
+    self.x = self.agentTypes[type].x
+    self.y = self.agentTypes[type].y
         self.moveQUp = 0
         self.moveQDown = 0
         self.moveQLeft = 0
@@ -18,18 +23,19 @@ function Agent:init(type, grid)
             self.xMoving = 0
         self.senseControlKey = nil
 
-    self.moveSpeed = AGENT_TYPES[type].moveSpeed
-    self.controls = AGENT_TYPES[type].controls
+    self.moveSpeed = self.agentTypes[type].moveSpeed
+    self.controls = self.agentTypes[type].controls
 
-    -- self.tile['RGB'] = AGENT_TYPES[type].RGB
+    -- self.tile['RGB'] = self.agentTypes[type].RGB
     self.tile = {
-        ['id'] = AGENT_TYPES[type].id,
-        ['RGB'] = AGENT_TYPES[type].standingRGB
+        ['id'] = self.agentTypes[type].id,
+        ['RGB'] = self.agentTypes[type].standingRGB,
+        ['smell'] = self.agentTypes[type].smell
     }
-    -- self.id = AGENT_TYPES[type].id
+    -- self.id = self.agentTypes[type].id
     -- self.tile['RGB'] = self:agentRGB()
-        self.standingRGB = AGENT_TYPES[type].standingRGB
-        self.movingRGB = AGENT_TYPES[type].movingRGB
+        self.standingRGB = self.agentTypes[type].standingRGB
+        self.movingRGB = self.agentTypes[type].movingRGB
 
     self.collidables = {WALL_TILE['id']}
     self.grid = grid

@@ -1,12 +1,18 @@
 Toe = Class{}
 
+-- require 'Utility/Util'
+
 function Toe:init()
+
+    self.sightDistance = 100
+    self.hearingAcuteness = 0
+    self.smellStength = {}
 
     self.x = 39
     self.y = 19
 
     self.moveSpeed = 0.07
-    self.id = 10
+    self.id = TOE_ID
 
     self.controls = {
         ['up'] = 'up',
@@ -29,7 +35,11 @@ function Toe:init()
         ['b'] = 21/255
     }
 
-
+    self.smell = {
+        ['r'] = 188/255,
+        ['g'] = 143/255,
+        ['b'] = 21/255
+    }
 
 --     self.standingRGB = {
 --         ['r'] = 100/255,

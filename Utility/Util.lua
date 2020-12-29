@@ -1,3 +1,5 @@
+math.randomseed(os.time())
+
 -- %% SCREEN SETTINGS %%
 --------------------------------------------------------------------------------
 WINDOW_WIDTH = 1280
@@ -9,40 +11,45 @@ VIRTUAL_WIDTH = 400
 VIRTUAL_HEIGHT = 400
 TILE_SIZE = 8
 
-
 -- %% GRID SETTINGS %%
 --------------------------------------------------------------------------------
 GRID_WIDTH = 40--math.floor((VIRTUAL_WIDTH-20) / TILE_SIZE)
 GRID_HEIGHT = 20--math.floor((VIRTUAL_HEIGHT / TILE_SIZE) / 2)
 
-
-
--- %% AGENT SETTINGS %%
---------------------------------------------------------------------------------
-AGENT_TYPES = {
-    ['Toe'] = Toe(),
-    ['Nostril'] = Nostril(),
-    ['Ear'] = Ear()}
-
-
-
 -- %% TILE SETTINGS %%
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+TOE_ID = 10
+EAR_ID = 20
+NOSTRIL_ID = 30
+
+
 VOID_TILE = {
     ['id'] = 0,
     ['RGB'] = {
         ['r'] = 0/255,
         ['g'] = 0/255,
         ['b'] = 0/255
-    }}
+    },
+    ['smell'] = {
+        ['r'] = 0/255,
+        ['g'] = 0/255,
+        ['b'] = 0/255
+    }
+}
 
 FLOOR_TILE = {
     ['id'] = 1,
     ['RGB'] = {
         ['r'] = 58/255,
         ['g'] = 16/255,
-        ['b'] = 6/255}
+        ['b'] = 6/255
+    },
+    ['smell'] = {
+        ['r'] = 58/255,
+        ['g'] = 16/255,
+        ['b'] = 6/255
     }
+}
 
 WALL_TILE = {
     ['id'] = 2,
@@ -50,7 +57,13 @@ WALL_TILE = {
         ['r'] = 180/255,
         ['g'] = 160/255,
         ['b'] = 160/255
-    }}
+    },
+    ['smell'] = {
+        ['r'] = 180/255,
+        ['g'] = 160/255,
+        ['b'] = 160/255
+    }
+}
 
 
 -- SIGHT_TILE = {
@@ -75,7 +88,29 @@ end
 
 --------------------------------------------------------
 
+function TILE(TILE)
+    local RGB = {
+        ['r'] = TILE['RGB']['r'],
+        ['g'] = TILE['RGB']['g'],
+        ['b'] = TILE['RGB']['b']
+    }
+    local smell = {
+        ['r'] = TILE['smell']['r'],
+        ['g'] = TILE['smell']['g'],
+        ['b'] = TILE['smell']['b']
+    }
+    local id = TILE['id']
+    local tile = {
+        ['RGB'] = RGB,
+        ['id'] = id,
+        ['smell'] = smell
+    }
+    return tile
+end
+
+
 function getTile(grid, screenX, screenY)
+
     x = math.floor(screenX/TILE_SIZE)
     y = math.floor(screenY/TILE_SIZE)
     -- print()
@@ -144,7 +179,7 @@ end
 -- Debugging Controls
 SIGHT_RAYS = 'n'
 SOUND_RAYS = 'y'
-EXCLUDE_AGENT_ID_1 = nil -- 10
-EXCLUDE_AGENT_ID_2 = nil -- 20
+EXCLUDE_AGENT_ID_1 = nil
+EXCLUDE_AGENT_ID_2 = nil
 EXCLUDE_AGENT_ID_3 = nil
 EXCLUDE_AGENT_ID_4 = nil
