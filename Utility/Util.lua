@@ -156,7 +156,18 @@ function makeSquareList(searchSize, posX, posY, oddness)
 end
 
 
+function recCleanTable(myTable)
 
+    for i, entry in pairs(myTable) do
+        if type(entry) == "table" then
+            entry = recCleanTable(entry)
+        else
+            -- table.remove(myTable, entry)
+            entry = nil
+        end
+    end
+    return nil
+end
 
 
 
@@ -179,7 +190,7 @@ end
 -- Debugging Controls
 SIGHT_RAYS = 'n'
 SOUND_RAYS = 'y'
-EXCLUDE_AGENT_ID_1 = nil
-EXCLUDE_AGENT_ID_2 = nil
+EXCLUDE_AGENT_ID_1 = nil --NOSTRIL_ID
+EXCLUDE_AGENT_ID_2 = nil --TOE_ID
 EXCLUDE_AGENT_ID_3 = nil
 EXCLUDE_AGENT_ID_4 = nil

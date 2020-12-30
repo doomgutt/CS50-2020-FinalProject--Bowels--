@@ -6,15 +6,15 @@ require 'Grid/Agents/Ear'
 
 
 -- agent init
-function Agent:init(type, grid)
+function Agent:init(type, grid, x, y)
 
     self.agentTypes = {
         ['Toe'] = Toe(),
         ['Nostril'] = Nostril(),
         ['Ear'] = Ear()}
 
-    self.x = self.agentTypes[type].x
-    self.y = self.agentTypes[type].y
+    self.x = x or self.agentTypes[type].x
+    self.y = y or self.agentTypes[type].y
         self.moveQUp = 0
         self.moveQDown = 0
         self.moveQLeft = 0
@@ -22,6 +22,7 @@ function Agent:init(type, grid)
             self.yMoving = 0
             self.xMoving = 0
         self.senseControlKey = nil
+        self.senseOfSmell = self.agentTypes[type].senseOfSmell
 
     self.moveSpeed = self.agentTypes[type].moveSpeed
     self.controls = self.agentTypes[type].controls

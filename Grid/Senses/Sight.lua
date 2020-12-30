@@ -221,13 +221,13 @@ function Sight:makeUImap(agent)
             if sightTile['tile']['id'] == FLOOR_TILE['id'] then
                 -- closer to 1 makes floor more vivid
                 -- smaller than 1 makes walls more vivid
-                dMod = 0.1
+                dMod = 0.7
             elseif sightTile['tile']['id'] == EAR_ID then
                 -- makes the enemy more visible
-                dMod = 40*((focusMod^1.2)*4)
+                dMod = 20*((focusMod^1.2)*4)
             elseif sightTile['tile']['id'] == NOSTRIL_ID then
                 -- makes the enemy more visible
-                dMod = 40*((focusMod^1.2)*4)
+                dMod = 20*((focusMod^1.2)*4)
             elseif sightTile['tile']['id'] == WALL_TILE['id'] then
                 dMod = 1
             else

@@ -1,19 +1,28 @@
 Smell = Class{}
 
-function Smell:init(grid, agent)
+function Smell:init(grid)
     self.smellMap = {}
-    self.smellUImap = {}
+    self.smellUIMap = {}
 
-    self.UIoutput = self.smellUImap
+    self.UIoutput = {}
+
+
 
     self:makeSmellMap(grid)
 end
 
+-- add AURA smells
 
 function Smell:update(dt, grid, agent)
+    self.agent = agent
+    self.senseOfSmell = agent.senseOfSmell
 
-    self:updateSmellMap(dt, grid)
-    self:pickUpSmell(agent)
+    -- add smells to grid
+    self:addSmells(dt, grid)
+    -- update smell decay
+    self:updateSmells(dt)
+    -- make smell UI (and render)
+    self:pickUpSmell()
 
 end
 
@@ -22,7 +31,7 @@ function Smell:render()
     for y = 1, GRID_HEIGHT do
         for x = 1, GRID_WIDTH do
 
-            local col = self:smellFade(self.smellMap[(y - 1) * GRID_WIDTH + x])
+            local col = self:smellOutput(self.smellMap[(y - 1) * GRID_WIDTH + x])
 
             love.graphics.setColor(
                 col['r'],
@@ -33,152 +42,212 @@ function Smell:render()
     end
 end
 
--- check grid
--- place agents on UI map
+--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-- %% ORDER %%
+-- INIT
+--  - make map without agents
+-- UPDATE
+--  - check grid(x, y) for agent positions
+--  - - check smellMap(x, y) for agent smells
+--  - - - if agent smell -> UPDATE smellMap(x, y) with agent smell
+--  - - - else ADD agent smell to smellMap(x, y)
+--
+--  - check smellMap(x, y) for agent smells
+--  - - reduce agent smell strength by CONSTANT
+--  - - - if strength <= 0 -> remove entry
+--  - - - if strength > 1 -> stength = 1
+--
+--  - make UI map
 
 
 
+-- initial making of the map - no agents
 function Smell:makeSmellMap(grid)
-    local smell
     for y = 1, GRID_HEIGHT do
         for x = 1, GRID_WIDTH do
 
-            if grid[(y - 1) * GRID_WIDTH + x]['id'] == EAR_ID or
-                    grid[(y - 1) * GRID_WIDTH + x]['id'] == TOE_ID or
-                    grid[(y - 1) * GRID_WIDTH + x]['id'] == NOSTRIL_ID then
+            -- local vars for convenience
+            local gridTile = TILE(grid[(y - 1) * GRID_WIDTH + x])
+            local gridSmell
 
-                smell = {
-                    ['tile'] = TILE(FLOOR_TILE),
-                    ['SMELL'] = TILE(VOID_TILE)['smell'],
-                    ['strength'] = 1}
+            -- if AGENT, replace with floor tile
+            if gridTile['id'] == EAR_ID or
+                    gridTile['id'] == TOE_ID or
+                    gridTile['id'] == NOSTRIL_ID then
+
+                gridSmell = {
+                    ['base'] = {
+                        ['id'] = TILE(FLOOR_TILE)['id'],
+                        ['smell'] = TILE(FLOOR_TILE)['smell'],
+                        ['strength'] = 1
+                    }
+                }
             else
-                smell = {
-                    ['tile'] = TILE(grid[(y - 1) * GRID_WIDTH + x]),
-                    ['SMELL'] = TILE(VOID_TILE)['smell'],
-                    ['strength'] = 1}
+                -- otherwise just smack the tile on there
+                gridSmell = {
+                    ['base'] = {
+                        ['id'] = gridTile['id'],
+                        ['smell'] = gridTile['smell'],
+                        ['strength'] = 1
+                    }
+                }
             end
 
-            self.smellMap[(y - 1) * GRID_WIDTH + x] = smell
+            -- set smell map value
+            self.smellMap[(y - 1) * GRID_WIDTH + x] = gridSmell
         end
     end
 end
 
 
-function Smell:updateSmellMap(dt, grid)
+-- get agent positions from grid, place them onto the map and update smell decay
+function Smell:addSmells(dt, grid)
+    for y = 1, GRID_HEIGHT do
+        for x = 1, GRID_WIDTH do
+
+            -- get tile from grid
+            local gridTile = TILE(grid[(y - 1) * GRID_WIDTH + x])
+
+            -- if agent, add to smellmap
+            if gridTile['id'] == EAR_ID or
+                    gridTile['id'] == TOE_ID or
+                    gridTile['id'] == NOSTRIL_ID then
+
+                -- new smell var
+                local newSmell = {
+                    ['id'] = gridTile['id'],
+                    ['smell'] = gridTile['smell'],
+                    ['strength'] = 1
+                }
+
+                -- check if same smell exists
+                local no_similarities = true
+                local smellTile = self.smellMap[(y - 1) * GRID_WIDTH + x]
+                for i, smellEntry in pairs(smellTile) do
+
+                    -- if tile exists, reset its strength to 1
+                    if smellEntry['id'] == newSmell['id'] then
+                        smellEntry['strength'] = 1
+                        no_similarities = false
+                        break
+                    end
+                end
+
+                -- if it doesn't, append it
+                if no_similarities then
+                    smellTile[newSmell['id']] = newSmell
+                end
+            end
+        end
+    end
+end
+
+
+-- update smell fade
+function Smell:updateSmells(dt)
     local smellFadeConstant = 0.1
 
-    -- place smells
     for y = 1, GRID_HEIGHT do
         for x = 1, GRID_WIDTH do
 
-            -- make smell
-            local gridSmell = {
-                ['tile'] = TILE(grid[(y - 1) * GRID_WIDTH + x]),
-                ['SMELL'] = TILE(grid[(y - 1) * GRID_WIDTH + x])['smell'],
-                ['strength'] = 1}
+            local smellTile = self.smellMap[(y - 1) * GRID_WIDTH + x]
 
-            -- place creature smell on map
-            -- (adjust for smelliness in the actual smell)
-            if gridSmell['tile']['id'] == EAR_ID or
-                    gridSmell['tile']['id'] == TOE_ID or
-                    gridSmell['tile']['id'] == NOSTRIL_ID then
+            for i, smellEntry in pairs(smellTile) do
+                if i ~= 'base' then
+                    -- tables pass by reference
+                    -- local str = smellEntry['strength']
+                    smellEntry['strength'] = smellEntry['strength'] - dt * smellFadeConstant
 
-                self.smellMap[(y - 1) * GRID_WIDTH + x] = gridSmell
+                    if smellEntry['strength'] <= 0 then
+                        -- experimental, might need to remove index?? not sure...
+                        smellTile[i] = nil
+                        -- smellEntry = nil
+                        -- table.remove(smellTile, smellEntry)
+                    elseif smellEntry['strength'] > 1 then
+                        str = 1
+                    end
+                end
             end
         end
     end
+end
 
 
-    -- update smell fade
-    for y = 1, GRID_HEIGHT do
-        for x = 1, GRID_WIDTH do
-
-            local mapSmell = self.smellMap[(y - 1) * GRID_WIDTH + x]
-
-            if mapSmell['strength'] <= 0 then
-                mapSmell['SMELL'] = TILE(VOID_TILE)['smell']
-                mapSmell['strength'] = 1
-            elseif mapSmell['strength'] >= 1  then
-                mapSmell['strength'] = 1
-            end
-
-            if mapSmell['tile']['id'] == EAR_ID or
-                    mapSmell['tile']['id'] == TOE_ID or
-                    mapSmell['tile']['id'] == NOSTRIL_ID then
-
-                mapSmell['strength'] = mapSmell['strength'] - dt * smellFadeConstant
-            end
-
-            self.smellMap[(y - 1) * GRID_WIDTH + x] = mapSmell
-            self:smellAura(x, y, mapSmell)
-        end
+-- adjust smell based on tile
+function Smell:smellAdjust(id)
+    if id == WALL_TILE['id'] then
+        return 0.3 * self.senseOfSmell
+    elseif id == FLOOR_TILE['id'] then
+        return 1 * self.senseOfSmell
+    elseif id == self.agent.tile['id'] then
+        return 0.1 * self.senseOfSmell
+    else
+        return 1 * self.senseOfSmell
     end
-
-
 end
 
 
-function Smell:smellAura(self_x, self_y, smell)
-    -- for y = -1, 1 do
-    --     for x = -1, 1 do
-    --         if self:checkBounds(self_x + x, self_y + y) then
-    --             if
-    --         end
-    --     end
-    -- end
-end
-
-
--- adjust RGB by strength of smell
-function Smell:smellFade(smellTile)
+-- smell output
+function Smell:smellOutput(smellTile)
     local RGB = {}
-    local smellAdjust
 
     -- check for map edge
     if smellTile ~= nil then
-        if smellTile['tile']['id'] == WALL_TILE['id'] then
-            smellAdjust = 0.7
-        else
-            smellAdjust = 1.5
+        local smellAdjust = self:smellAdjust(smellTile['base']['id'])
+
+        for i, smellEntry in pairs(smellTile) do
+
+            if i == 'base' then
+                RGB['r'] = smellTile['base']['smell']['r'] * smellAdjust
+                RGB['g'] = smellTile['base']['smell']['g'] * smellAdjust
+                RGB['b'] = smellTile['base']['smell']['b'] * smellAdjust
+            else
+                local str = smellEntry['strength']
+
+                RGB['r'] = RGB['r'] + smellEntry['smell']['r'] * str * self:smellAdjust(smellEntry['id'])
+                RGB['g'] = RGB['g'] + smellEntry['smell']['g'] * str * self:smellAdjust(smellEntry['id'])
+                RGB['b'] = RGB['b'] + smellEntry['smell']['b'] * str * self:smellAdjust(smellEntry['id'])
+            end
         end
 
-        local str = smellTile['strength']
-        local smellOnTile = smellTile['SMELL']
-        local tileSmell = smellTile['tile']['smell']
-
-        RGB['r'] = (smellOnTile['r'] * str + tileSmell['r'] * smellAdjust)/2
-        RGB['g'] = (smellOnTile['g'] * str + tileSmell['g'] * smellAdjust)/2
-        RGB['b'] = (smellOnTile['b'] * str + tileSmell['b'] * smellAdjust)/2
+        -- -- average maybe
+        -- local totes = #smellTile + 1
+        -- RGB['r'] = RGB['r'] / totes
+        -- RGB['g'] = RGB['g'] / totes
+        -- RGB['b'] = RGB['b'] / totes
 
     else
-        RGB['r'] = 0
-        RGB['g'] = 0
-        RGB['b'] = 0
+        RGB = {
+            ['r'] = 0,
+            ['g'] = 0,
+            ['b'] = 0
+        }
     end
 
     return RGB
 end
 
 
+
 -- making UI
-function Smell:pickUpSmell(agent)
+function Smell:pickUpSmell()
     self.UIoutput = {
         -- 1 - ul
-        [1] = self:smellFade(self.smellMap[((agent.y-1) - 1) * GRID_WIDTH + (agent.x-1)]),
+        [1] = self:smellOutput(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x-1)]),
         -- 2 - u
-        [2] = self:smellFade(self.smellMap[((agent.y-1) - 1) * GRID_WIDTH + (agent.x)]),
+        [2] = self:smellOutput(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x)]),
         -- 3 - ur
-        [3] = self:smellFade(self.smellMap[((agent.y-1) - 1) * GRID_WIDTH + (agent.x+1)]),
+        [3] = self:smellOutput(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x+1)]),
         -- 4 - r
-        [4] = self:smellFade(self.smellMap[((agent.y) - 1) * GRID_WIDTH + (agent.x+1)]),
+        [4] = self:smellOutput(self.smellMap[((self.agent.y) - 1) * GRID_WIDTH + (self.agent.x+1)]),
         -- 5 - dr
-        [5] = self:smellFade(self.smellMap[((agent.y+1) - 1) * GRID_WIDTH + (agent.x+1)]),
+        [5] = self:smellOutput(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x+1)]),
         -- 6 - d
-        [6] = self:smellFade(self.smellMap[((agent.y+1) - 1) * GRID_WIDTH + (agent.x)]),
+        [6] = self:smellOutput(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x)]),
         -- 7 - dl
-        [7] = self:smellFade(self.smellMap[((agent.y+1) - 1) * GRID_WIDTH + (agent.x-1)]),
+        [7] = self:smellOutput(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x-1)]),
         -- 8 - l
-        [8] = self:smellFade(self.smellMap[((agent.y) - 1) * GRID_WIDTH + (agent.x-1)])
+        [8] = self:smellOutput(self.smellMap[((self.agent.y) - 1) * GRID_WIDTH + (self.agent.x-1)])
     }
 end
 
@@ -202,4 +271,16 @@ function Smell:checkBounds(nextX, nextY)
     else
         return true
     end
+end
+
+
+
+function Smell:test(smellTile)
+    print()
+    print('id: ' .. self.smellMap[1]['base']['id'])
+    print('str: ' .. self.smellMap[1]['base']['strength'])
+    print('r-' .. self.smellMap[1]['base']['smell']['r'])
+    print('g-' .. self.smellMap[1]['base']['smell']['g'])
+    print('b-' .. self.smellMap[1]['base']['smell']['b'])
+    print()
 end

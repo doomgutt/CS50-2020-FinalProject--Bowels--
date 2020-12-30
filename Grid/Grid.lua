@@ -29,16 +29,40 @@ function Grid:init ()
     -- -- put walls on grid
     -- self:makeWalls()
 
-    self:makeMap(MAP_1)
+    MAP_OPTIONS = {
+        [1] = MAP_1,
+        [2] = MAP_2
+    }
 
+    local k = math.random(1, 2)
+    MAP_CHOICE = MAP_OPTIONS[k]
+
+    self:makeMap(MAP_CHOICE)
+
+    -- FLOOR_TILE['RGB']
+
+    local TOEx = math.random(2, 39)
+    local TOEy = math.random(2, 19)
+    while self.grid[(TOEy - 1) * GRID_WIDTH + TOEx]['id'] ~= FLOOR_TILE['id'] do
+        TOEx = math.random(2, 39)
+        TOEy = math.random(2, 19)
+    end
+
+    local NOSTRILx = math.random(2, 39)
+    local NOSTRILy = math.random(2, 19)
+    while self.grid[(NOSTRILy - 1) * GRID_WIDTH + NOSTRILx]['id'] ~= FLOOR_TILE['id'] do
+        NOSTRILx = math.random(2, 39)
+        NOSTRILy = math.random(2, 19)
+    end
 
     -- init agents
     self.agents = {
-        ['Toe_1'] = Agent('Toe', self.grid),
+        ['Toe_1'] = Agent('Toe', self.grid, TOEx, TOEy),
         -- ['Toe_2'] = nil,
         ['Ear'] = Agent('Ear', self.grid),
-        ['Nostril'] = Agent('Nostril', self.grid)
+        ['Nostril'] = Agent('Nostril', self.grid, NOSTRILx, NOSTRILy)
     }
+
 
     -- init senses
     self.senses['Toe_1'] = {
@@ -71,7 +95,7 @@ function Grid:update(dt)
     -- -- removes previous agent placements
     -- self:makeFloor()
     -- self:makeWalls()
-    self:makeMap(MAP_1)
+    self:makeMap(MAP_CHOICE)
 
     if self.agents['Toe_1'].status['out'] == true then
         self:init()
@@ -195,9 +219,9 @@ function Grid:render()
 
 
     -- render sight rays
-    self.senses['Toe_1']['sight']:render(SIGHT_RAYS)
-    self.senses['Ear']['sound']:render(SOUND_RAYS)
-    self.senses['Nostril']['smell']:render()
+    -- self.senses['Toe_1']['sight']:render(SIGHT_RAYS)
+    -- self.senses['Ear']['sound']:render(SOUND_RAYS)
+    -- self.senses['Nostril']['smell']:render()
 
     -- love.graphics.line((1)*TILE_SIZE, (1+3)*TILE_SIZE, 20*TILE_SIZE, (20+3)*TILE_SIZE)
 

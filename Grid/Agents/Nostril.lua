@@ -4,12 +4,13 @@ Nostril = Class{}
 
 function Nostril:init(params)
 
-    self.x = 20
-    self.y = 10
+    self.x = 2
+    self.y = 2
 
-    self.moveSpeed = 0.15 -- 0.08
+    self.moveSpeed = 0.11 -- 0.08
     self.id = NOSTRIL_ID
 
+    self.senseOfSmell = 1
 
     self.controls = {
         ['up'] = 'i',
@@ -38,4 +39,5 @@ function Nostril:init(params)
         ['g'] = 201/255,
         ['b'] = 0/255
     }
+
 end

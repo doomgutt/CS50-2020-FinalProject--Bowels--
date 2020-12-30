@@ -4,11 +4,13 @@ Ear = Class{}
 
 function Ear:init()
 
-    self.x = 2
-    self.y = 2
+    self.x = 0
+    self.y = 0
 
     self.moveSpeed = 0.07
     self.id = EAR_ID
+
+    self.senseOfSmell = 0.1
 
     self.controls = {
         ['up'] = 'w',
@@ -34,4 +36,5 @@ function Ear:init()
         ['g'] = 60/255,
         ['b'] = 10/255
     }
+
 end

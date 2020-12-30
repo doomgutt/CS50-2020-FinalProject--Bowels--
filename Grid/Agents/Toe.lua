@@ -8,6 +8,8 @@ function Toe:init()
     self.hearingAcuteness = 0
     self.smellStength = {}
 
+    self.senseOfSmell = 0.1
+    
     self.x = 39
     self.y = 19
 
@@ -40,6 +42,7 @@ function Toe:init()
         ['g'] = 143/255,
         ['b'] = 21/255
     }
+
 
 --     self.standingRGB = {
 --         ['r'] = 100/255,
