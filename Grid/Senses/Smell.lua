@@ -7,7 +7,6 @@ function Smell:init(grid)
     self.UIoutput = {}
 
 
-
     self:makeSmellMap(grid)
 end
 
@@ -120,32 +119,81 @@ function Smell:addSmells(dt, grid)
                     ['strength'] = 1
                 }
 
-                -- check if same smell exists
-                local no_similarities = true
-                local smellTile = self.smellMap[(y - 1) * GRID_WIDTH + x]
-                for i, smellEntry in pairs(smellTile) do
+                -- add smell
+                -- self:addSmell(newSmell, x, y)
 
-                    -- if tile exists, reset its strength to 1
-                    if smellEntry['id'] == newSmell['id'] then
-                        smellEntry['strength'] = 1
-                        no_similarities = false
-                        break
-                    end
-                end
-
-                -- if it doesn't, append it
-                if no_similarities then
-                    smellTile[newSmell['id']] = newSmell
-                end
+                self:smellAura(dt, newSmell, x, y)
             end
         end
     end
 end
 
 
+-- ADD/UPDATE new smell to X, Y on smellMap
+function Smell:addSmell(dt, newSmell, mapX, mapY, str)
+    local str = str or 1
+    -- check if same smell exists
+    local no_similarities = true
+    local smellTile = self.smellMap[(mapY - 1) * GRID_WIDTH + mapX]
+
+    for i, smellEntry in pairs(smellTile) do
+
+        -- if tile exists, reset its strength to 1
+        if smellEntry['id'] == newSmell['id'] then
+            smellEntry['strength'] = smellEntry['strength'] + str*dt
+            if smellEntry['strength'] > 1 then
+                smellEntry['strength'] = 1
+            end
+            no_similarities = false
+            break
+        end
+    end
+
+    -- if it doesn't, append it
+    if no_similarities then
+        smellTile[newSmell['id']] = {
+            ['id'] = newSmell['id'],
+            ['smell'] = newSmell['smell'],
+            ['strength'] = str
+        }
+    end
+end
+
+
+function Smell:smellAura(dt, newSmell, self_x, self_y)
+    local str
+    for y = -1, 1 do
+        for x = -1, 1 do
+            print(x)
+            print(y)
+            print(math.abs(x) + math.abs(y))
+            print()
+            --(math.random(1, 3))
+            local fn = math.abs(x) + math.abs(y)
+            str = 1 - (0.35 * math.log(fn) + 0.6)
+            if self:checkBounds(self_x + x, self_y + y) then
+                self:addSmell(dt, newSmell, self_x + x, self_y + y, str)
+            end
+        end
+    end
+end
+
+
+
+-- self.moveQUp = self.moveQUp + dt
+-- while self.moveQUp > self.moveSpeed do
+--     self.moveQUp = self.moveQUp - self.moveSpeed
+--     if self:Collision(self.x, self.y - 1) then
+--         self.y = self.y - 1
+--         self.yMoving = 1
+--     else
+--         self.yMoving = 0
+--     end
+-- end
+
+
 -- update smell fade
 function Smell:updateSmells(dt)
-    local smellFadeConstant = 0.1
 
     for y = 1, GRID_HEIGHT do
         for x = 1, GRID_WIDTH do
@@ -154,9 +202,9 @@ function Smell:updateSmells(dt)
 
             for i, smellEntry in pairs(smellTile) do
                 if i ~= 'base' then
-                    -- tables pass by reference
-                    -- local str = smellEntry['strength']
-                    smellEntry['strength'] = smellEntry['strength'] - dt * smellFadeConstant
+
+                    -- update smell strengths
+                    smellEntry['strength'] = self:smellDecay(dt, smellEntry['strength'])
 
                     if smellEntry['strength'] <= 0 then
                         -- experimental, might need to remove index?? not sure...
@@ -173,10 +221,19 @@ function Smell:updateSmells(dt)
 end
 
 
+function Smell:smellDecay(dt, str)
+    -- smell fades in 10 seconds (dt * 0.1 per second)
+    local smellFadeConstant = 0.1
+
+    -- return adjusted strength of smell
+    return str - dt * smellFadeConstant
+end
+
+
 -- adjust smell based on tile
 function Smell:smellAdjust(id)
     if id == WALL_TILE['id'] then
-        return 0.3 * self.senseOfSmell
+        return 0.4 * self.senseOfSmell
     elseif id == FLOOR_TILE['id'] then
         return 1 * self.senseOfSmell
     elseif id == self.agent.tile['id'] then
