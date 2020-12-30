@@ -7,7 +7,7 @@ function Nostril:init(params)
     self.x = 2
     self.y = 2
 
-    self.moveSpeed = 0.11 -- 0.08
+    self.moveSpeed = 0.13 -- 0.08
     self.id = NOSTRIL_ID
 
     self.senseOfSmell = 1

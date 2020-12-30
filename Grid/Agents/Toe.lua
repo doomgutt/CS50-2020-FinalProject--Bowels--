@@ -9,11 +9,11 @@ function Toe:init()
     self.smellStength = {}
 
     self.senseOfSmell = 0.1
-    
+
     self.x = 39
     self.y = 19
 
-    self.moveSpeed = 0.07
+    self.moveSpeed = 0.1
     self.id = TOE_ID
 
     self.controls = {

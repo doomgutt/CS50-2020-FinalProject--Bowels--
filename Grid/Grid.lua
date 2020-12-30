@@ -221,7 +221,7 @@ function Grid:render()
     -- render sight rays
     -- self.senses['Toe_1']['sight']:render(SIGHT_RAYS)
     -- self.senses['Ear']['sound']:render(SOUND_RAYS)
-    -- self.senses['Nostril']['smell']:render()
+    self.senses['Nostril']['smell']:render()
 
     -- love.graphics.line((1)*TILE_SIZE, (1+3)*TILE_SIZE, 20*TILE_SIZE, (20+3)*TILE_SIZE)
 
