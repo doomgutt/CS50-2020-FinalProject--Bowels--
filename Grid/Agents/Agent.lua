@@ -13,18 +13,31 @@ function Agent:init(type, grid, x, y)
         ['Nostril'] = Nostril(),
         ['Ear'] = Ear()}
 
+    -- position
     self.x = x or self.agentTypes[type].x
     self.y = y or self.agentTypes[type].y
-        self.moveQUp = 0
-        self.moveQDown = 0
-        self.moveQLeft = 0
-        self.moveQRight = 0
-            self.yMoving = 0
-            self.xMoving = 0
-        self.senseControlKey = nil
-        self.senseOfSmell = self.agentTypes[type].senseOfSmell
 
+    -- movement
     self.moveSpeed = self.agentTypes[type].moveSpeed
+    self.moveQUp = 0
+    self.moveQDown = 0
+    self.moveQLeft = 0
+    self.moveQRight = 0
+    self.yMoving = false
+    self.xMoving = false
+
+    -- smell
+    self.senseOfSmell = self.agentTypes[type].senseOfSmell or 1
+
+    -- sound
+    self.senseOfHearing = self.agentTypes[type].senseOfHearing or 1
+    self.stepLoudness = self.agentTypes[type].stepLoudness or 0.5
+    self.bumpLoudness = self.agentTypes[type].bumpLoudness or 1
+    self.xWallBump = false
+    self.yWallBump = false
+
+    -- controls
+    self.senseControlKey = nil
     self.controls = self.agentTypes[type].controls
 
     -- self.tile['RGB'] = self.agentTypes[type].RGB
@@ -64,9 +77,9 @@ end
 
 -- agent colour
 function Agent:agentRGB()
-    if self.yMoving == 1 or self.xMoving == 1 then
+    if self.yMoving or self.xMoving then
         self.tile['RGB'] = self.movingRGB
-    elseif self.yMoving == 0 and self.xMoving == 0 then
+    else
         self.tile['RGB'] = self.standingRGB
     end
     return self.tile['RGB']
@@ -79,62 +92,89 @@ function Agent:movement(dt)
     -- y movement
     if love.keyboard.isDown(self.controls['up']) then
         self.moveQUp = self.moveQUp + dt
-        while self.moveQUp > self.moveSpeed do
-            self.moveQUp = self.moveQUp - self.moveSpeed
-            if self:Collision(self.x, self.y - 1) then
-                self.y = self.y - 1
-                self.yMoving = 1
-            else
-                self.yMoving = 0
+        if self.moveQUp > self.moveSpeed then
+            while self.moveQUp > self.moveSpeed do
+                self.moveQUp = self.moveQUp - self.moveSpeed
+                if self:Collision(self.x, self.y - 1) then
+                    self.y = self.y - 1
+                    self.yMoving = true
+                else
+                    self.yMoving = false
+                    self.yWallBump = true
+                end
             end
+        else
+            self.yMoving = false
+            self.yWallBump = false
         end
+
     elseif love.keyboard.isDown(self.controls['down']) then
         -- self.y = self.y + 1
         self.moveQDown = self.moveQDown + dt
-        while self.moveQDown > self.moveSpeed do
-            self.moveQDown = self.moveQDown - self.moveSpeed
-            if self:Collision(self.x, self.y + 1) then
-                self.y = self.y + 1
-                self.yMoving = 1
-            else
-                self.yMoving = 0
+        if self.moveQDown > self.moveSpeed then
+            while self.moveQDown > self.moveSpeed do
+                self.moveQDown = self.moveQDown - self.moveSpeed
+                if self:Collision(self.x, self.y + 1) then
+                    self.y = self.y + 1
+                    self.yMoving = true
+                else
+                    self.yMoving = false
+                    self.yWallBump = true
+                end
             end
+        else
+            self.yMoving = false
+            self.yWallBump = false
         end
     else
         self.moveQUp = 0
         self.moveQDown = 0
-        self.yMoving = 0
+        self.yMoving = false
+        self.yWallBump = false
     end
 
     -- x movement
     if love.keyboard.isDown(self.controls['left']) then
         -- self.x = self.x - 1
         self.moveQLeft = self.moveQLeft + dt
-        while self.moveQLeft > self.moveSpeed do
-            self.moveQLeft = self.moveQLeft - self.moveSpeed
-            if self:Collision(self.x - 1, self.y) then
-                self.x = self.x - 1
-                self.xMoving = 1
-            else
-                self.xMoving = 0
+        if self.moveQLeft > self.moveSpeed then
+            while self.moveQLeft > self.moveSpeed do
+                self.moveQLeft = self.moveQLeft - self.moveSpeed
+                if self:Collision(self.x - 1, self.y) then
+                    self.x = self.x - 1
+                    self.xMoving = true
+                else
+                    self.xMoving = false
+                    self.xWallBump = true
+                end
             end
+        else
+            self.xMoving = false
+            self.xWallBump = false
         end
     elseif love.keyboard.isDown(self.controls['right']) then
         -- self.x = self.x + 1
         self.moveQRight = self.moveQRight + dt
-        while self.moveQRight > self.moveSpeed do
-            self.moveQRight = self.moveQRight - self.moveSpeed
-            if self:Collision(self.x + 1, self.y) then
-                self.x = self.x + 1
-                self.xMoving = 1
-            else
-                self.xMoving = 0
+        if self.moveQRight > self.moveSpeed then
+            while self.moveQRight > self.moveSpeed do
+                self.moveQRight = self.moveQRight - self.moveSpeed
+                if self:Collision(self.x + 1, self.y) then
+                    self.x = self.x + 1
+                    self.xMoving = true
+                else
+                    self.xMoving = false
+                    self.xWallBump = true
+                end
             end
+        else
+            self.xMoving = false
+            self.xWallBump = false
         end
     else
         self.moveQLeft = 0
         self.moveQRight = 0
-        self.xMoving = 0
+        self.xMoving = false
+        self.xWallBump = false
     end
 end
 

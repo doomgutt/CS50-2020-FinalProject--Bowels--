@@ -4,18 +4,25 @@ Toe = Class{}
 
 function Toe:init()
 
-    self.sightDistance = 100
-    self.hearingAcuteness = 0
-    self.smellStength = {}
-
-    self.senseOfSmell = 0.1
-
-    self.x = 39
-    self.y = 19
+    self.x = 23
+    self.y = 9
 
     self.moveSpeed = 0.1
     self.id = TOE_ID
 
+    -- sight
+    self.sightDistance = 100
+
+    -- sound
+    self.senseOfHearing = 0.2
+    self.stepLoudness = 0.7
+    self.bumpLoudness = 1
+
+    -- smell
+    self.senseOfSmell = 0.1
+    self.smelliness = 0
+
+    -- controls
     self.controls = {
         ['up'] = 'up',
         ['down'] = 'down',

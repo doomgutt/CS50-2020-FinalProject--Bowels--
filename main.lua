@@ -8,7 +8,7 @@ require 'Utility/Util'
 function love.load()
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
-    love.window.setTitle('Final Project [title??]')
+    love.window.setTitle('[bowels]')
 
     math.randomseed(os.time())
 
@@ -50,7 +50,7 @@ function love.update(dt)
     -- end
     -- print()
     grid:update(dt)
-    -- love.timer.sleep(1)
+    -- love.timer.sleep(0.1)
 end
 
 

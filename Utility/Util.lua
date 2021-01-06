@@ -119,6 +119,7 @@ function getTile(grid, screenX, screenY)
 end
 
 
+
 function makeSquareList(searchSize, posX, posY, oddness)
     local squareList = {}
     if oddness == 'odd' then
@@ -170,27 +171,23 @@ function recCleanTable(myTable)
 end
 
 
+function varSign(var)
+    if var < 0 then
+        return -1
+    elseif var > 0 then
+        return 1
+    else
+        return 0
+    end
+end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
--- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -- Debugging Controls
-SIGHT_RAYS = 'n'
+SIGHT_RAYS = 'y'
 SOUND_RAYS = 'y'
-EXCLUDE_AGENT_ID_1 = nil --NOSTRIL_ID
-EXCLUDE_AGENT_ID_2 = nil --TOE_ID
+EXCLUDE_AGENT_ID_1 = nil
+EXCLUDE_AGENT_ID_2 = nil
+-- EXCLUDE_AGENT_ID_1 = NOSTRIL_ID
+-- EXCLUDE_AGENT_ID_2 = TOE_ID
 EXCLUDE_AGENT_ID_3 = nil
 EXCLUDE_AGENT_ID_4 = nil

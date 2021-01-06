@@ -1,11 +1,10 @@
 Smell = Class{}
 
-function Smell:init(grid)
+function Smell:init(grid, agent)
     self.smellMap = {}
-    self.smellUIMap = {}
-
     self.UIoutput = {}
 
+    self.senseOfSmell = agent.senseOfSmell
 
     self:makeSmellMap(grid)
 end
@@ -14,14 +13,13 @@ end
 
 function Smell:update(dt, grid, agent)
     self.agent = agent
-    self.senseOfSmell = agent.senseOfSmell
 
     -- add smells to grid
     self:addSmells(dt, grid)
     -- update smell decay
     self:updateSmells(dt)
     -- make smell UI (and render)
-    self:pickUpSmell()
+    self:makeUIoutput()
 
 end
 
@@ -30,7 +28,7 @@ function Smell:render()
     for y = 1, GRID_HEIGHT do
         for x = 1, GRID_WIDTH do
 
-            local col = self:smellOutput(self.smellMap[(y - 1) * GRID_WIDTH + x])
+            local col = self:pickUpSmell(self.smellMap[(y - 1) * GRID_WIDTH + x])
 
             love.graphics.setColor(
                 col['r'],
@@ -164,13 +162,28 @@ function Smell:smellAura(dt, newSmell, self_x, self_y)
     local str
     for y = -1, 1 do
         for x = -1, 1 do
-            print(x)
-            print(y)
-            print(math.abs(x) + math.abs(y))
-            print()
-            --(math.random(1, 3))
-            local fn = math.abs(x) + math.abs(y)
-            str = 1 - (0.35 * math.log(fn) + 0.6)
+            local randVar = (math.random(70, 100))/100
+            local varX = math.abs(x) + math.abs(y)
+
+            if varX == 0 then
+                str = 10 * randVar
+            elseif varX == 1 then
+                str = 0.5 * randVar
+            elseif varX == 2 then
+                str = 0.3 * randVar
+            end
+
+            -- a bunch of maths, lol
+
+            -- local k = 10
+            -- local fn1 = math.log(varX*k+0.01832)/k + 0.4
+            -- local fn2 = (-math.exp(-varX) + 1)/1.5
+            -- local fn3 = 0.4*varX - 0.1
+            -- if varX == 0 then
+            --     print(fn2)
+            -- end
+            -- str = 1 - fn1
+
             if self:checkBounds(self_x + x, self_y + y) then
                 self:addSmell(dt, newSmell, self_x + x, self_y + y, str)
             end
@@ -245,7 +258,7 @@ end
 
 
 -- smell output
-function Smell:smellOutput(smellTile)
+function Smell:pickUpSmell(smellTile)
     local RGB = {}
 
     -- check for map edge
@@ -287,24 +300,24 @@ end
 
 
 -- making UI
-function Smell:pickUpSmell()
+function Smell:makeUIoutput()
     self.UIoutput = {
         -- 1 - ul
-        [1] = self:smellOutput(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x-1)]),
+        [1] = self:pickUpSmell(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x-1)]),
         -- 2 - u
-        [2] = self:smellOutput(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x)]),
+        [2] = self:pickUpSmell(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x)]),
         -- 3 - ur
-        [3] = self:smellOutput(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x+1)]),
+        [3] = self:pickUpSmell(self.smellMap[((self.agent.y-1) - 1) * GRID_WIDTH + (self.agent.x+1)]),
         -- 4 - r
-        [4] = self:smellOutput(self.smellMap[((self.agent.y) - 1) * GRID_WIDTH + (self.agent.x+1)]),
+        [4] = self:pickUpSmell(self.smellMap[((self.agent.y) - 1) * GRID_WIDTH + (self.agent.x+1)]),
         -- 5 - dr
-        [5] = self:smellOutput(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x+1)]),
+        [5] = self:pickUpSmell(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x+1)]),
         -- 6 - d
-        [6] = self:smellOutput(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x)]),
+        [6] = self:pickUpSmell(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x)]),
         -- 7 - dl
-        [7] = self:smellOutput(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x-1)]),
+        [7] = self:pickUpSmell(self.smellMap[((self.agent.y+1) - 1) * GRID_WIDTH + (self.agent.x-1)]),
         -- 8 - l
-        [8] = self:smellOutput(self.smellMap[((self.agent.y) - 1) * GRID_WIDTH + (self.agent.x-1)])
+        [8] = self:pickUpSmell(self.smellMap[((self.agent.y) - 1) * GRID_WIDTH + (self.agent.x-1)])
     }
 end
 

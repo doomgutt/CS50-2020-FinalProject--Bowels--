@@ -28,7 +28,7 @@ function Sight:init(grid, agent, sightDist)
 end
 
 
-function Sight:update(grid, agent)
+function Sight:update(dt, grid, agent)
 
     self.agentX = agent.x
     self.agentY = agent.y
@@ -71,15 +71,15 @@ function Sight:render(visionRays)
     -- print('agent')
     -- print(self.agentX)
     -- print(self.agentY)
-
+    --
     -- self:drawLines(self.agentX, self.agentY, 4, 4)
-
+    --
     -- local k = TILE_SIZE
     -- local c = 0.5
     -- love.graphics.line(
     --     (self.agentX + c)*k, (self.agentY + c)*k,
     --     (2 + c)*k, (2 + c)*k)
-
+    --
     -- love.graphics.setColor(1, 1, 1)
     -- for i, XY in pairs(self.drawTable) do
     --     love.graphics.rectangle('fill', XY['x'], XY['y'], 3, 3)
@@ -221,7 +221,7 @@ function Sight:makeUImap(agent)
             if sightTile['tile']['id'] == FLOOR_TILE['id'] then
                 -- closer to 1 makes floor more vivid
                 -- smaller than 1 makes walls more vivid
-                dMod = 0.4
+                dMod = 0.3
             elseif sightTile['tile']['id'] == EAR_ID then
                 -- makes the enemy more visible
                 dMod = 2*((focusMod^1.2)*4)
@@ -239,7 +239,7 @@ function Sight:makeUImap(agent)
             -- for case closer to 0 ln is more like 1/x (far range vision)
             -- 0.02 seems to work well??
             -- might need to fanagle the constants a bit
-            local k = -0.05 / ((focusMod^1.2)*2)
+            local k = -0.03 / ((focusMod^1.2)*2)
             -- local formatted = string.format("%.2f %%", focusMod)
             -- distance function with e^(-x)
             local dist = dMod * math.exp(k * (sightTile['dist'] - 1))

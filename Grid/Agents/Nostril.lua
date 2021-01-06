@@ -7,11 +7,22 @@ function Nostril:init(params)
     self.x = 2
     self.y = 2
 
-    self.moveSpeed = 0.13 -- 0.08
+    self.moveSpeed = 0.2 -- 0.08
     self.id = NOSTRIL_ID
 
-    self.senseOfSmell = 1
+    -- sight
+    self.sightDistance = 0
 
+    -- sound
+    self.senseOfHearing = 0.1
+    self.stepLoudness = 0.8
+    self.bumpLoudness = 0.7
+
+    -- smell
+    self.senseOfSmell = 1
+    self.smelliness = 0
+
+    -- controls
     self.controls = {
         ['up'] = 'i',
         ['down'] = 'k',

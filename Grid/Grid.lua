@@ -20,7 +20,8 @@ function Grid:init ()
 
     -- 1D list printed to the screen
     self.grid = {}
-    self.wallList = {}
+    self.gridSounds = {}
+    -- self.wallList = {}
 
     -- -- fill grid with floors
     -- self:makeFloor()
@@ -35,32 +36,23 @@ function Grid:init ()
     }
 
     local k = math.random(1, 2)
-    MAP_CHOICE = MAP_OPTIONS[k]
+    MAP_CHOICE = MAP_1 -- MAP_OPTIONS[k]
 
+    -- self:makeMap(MAP_CHOICE)
     self:makeMap(MAP_CHOICE)
 
-    -- FLOOR_TILE['RGB']
+    -- Random Map Position for Agents
+    -- TOEx, TOEy = self:randomFloorTile()
+    -- NOSTRILx, NOSTRILy = self:randomFloorTile()
+    -- EARx, EARy = self:randomFloorTile()
 
-    local TOEx = math.random(2, 39)
-    local TOEy = math.random(2, 19)
-    while self.grid[(TOEy - 1) * GRID_WIDTH + TOEx]['id'] ~= FLOOR_TILE['id'] do
-        TOEx = math.random(2, 39)
-        TOEy = math.random(2, 19)
-    end
-
-    local NOSTRILx = math.random(2, 39)
-    local NOSTRILy = math.random(2, 19)
-    while self.grid[(NOSTRILy - 1) * GRID_WIDTH + NOSTRILx]['id'] ~= FLOOR_TILE['id'] do
-        NOSTRILx = math.random(2, 39)
-        NOSTRILy = math.random(2, 19)
-    end
 
     -- init agents
     self.agents = {
-        ['Toe_1'] = Agent('Toe', self.grid, TOEx, TOEy),
+        ['Toe_1'] = Agent('Toe', self.grid), --, TOEx, TOEy),
         -- ['Toe_2'] = nil,
-        ['Ear'] = Agent('Ear', self.grid),
-        ['Nostril'] = Agent('Nostril', self.grid, NOSTRILx, NOSTRILy)
+        ['Ear'] = Agent('Ear', self.grid), --, EARx, EARy),
+        ['Nostril'] = Agent('Nostril', self.grid) --, NOSTRILx, NOSTRILy)
     }
 
 
@@ -116,11 +108,16 @@ function Grid:update(dt)
     end
 
     -- udpate senses
-    for name, sense in pairs(self.senses) do
+    for name, agentSenses in pairs(self.senses) do
         if self.agents[name].status['alive'] then
-            sense['sight']:update(self.grid, self.agents[name])
-            sense['sound']:update(dt, self.grid, self.agents[name])
-            sense['smell']:update(dt, self.grid, self.agents[name])
+
+            agentSenses['sight']:update(dt, self.grid, self.agents[name])
+            agentSenses['smell']:update(dt, self.grid, self.agents[name])
+            self.gridSounds = agentSenses['sound']:update(dt, self.grid, self.agents[name], self.gridSounds)
+
+            -- for _, sense in pairs(agentSenses) do
+            --     sense:update(dt, self.grid, self.agents[name])
+            -- end
         end
     end
 
@@ -159,6 +156,7 @@ function Grid:render()
                 self.grid[(y - 1) * GRID_WIDTH + x]['id'] == EXCLUDE_AGENT_ID_2 then
                 col = FLOOR_TILE['RGB']
             else
+                -- col = FLOOR_TILE['RGB']
                 col = self.grid[(y - 1) * GRID_WIDTH + x]['RGB']
             end
 
@@ -169,6 +167,8 @@ function Grid:render()
             self:customTile(x, y)
         end
     end
+
+
 
     -- sense titles
     love.graphics.setFont(smallFont)
@@ -218,14 +218,16 @@ function Grid:render()
     -- end
 
 
-    -- render sight rays
+    -- ===== Render Sense Debugging ======================================
     -- self.senses['Toe_1']['sight']:render(SIGHT_RAYS)
-    -- self.senses['Ear']['sound']:render(SOUND_RAYS)
-    self.senses['Nostril']['smell']:render()
+    -- self.senses['Nostril']['smell']:render()
 
-    -- love.graphics.line((1)*TILE_SIZE, (1+3)*TILE_SIZE, 20*TILE_SIZE, (20+3)*TILE_SIZE)
+    self.senses['Ear']['sound']:render()
+    self.senses['Toe_1']['sound']:render()
+    self.senses['Nostril']['sound']:render()
 
 end
+
 
 
 --%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -335,6 +337,17 @@ function Grid:customTile(x, y)
         TILE_SIZE * 0.3)       -- rounding y
 end
 
+
+function Grid:randomFloorTile()
+    local x = math.random(1, 40)
+    local y = math.random(1, 20)
+    while self.grid[(y - 1) * GRID_WIDTH + x]['id'] ~= FLOOR_TILE['id'] do
+        x = math.random(1, 40)
+        y = math.random(1, 20)
+    end
+
+    return x, y
+end
 
 
 
